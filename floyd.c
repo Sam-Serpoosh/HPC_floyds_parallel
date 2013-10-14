@@ -3,16 +3,18 @@
 #include <omp.h>
 #include <time.h>
 
-void adjacency_matrix(int a[][1000],int n) {
-  int i,j;
-  for(i = 0; i < n; i++)
-    for(j = 0; j <= n; j++)
-      a[i][j] = 0;
+#define NUM_OF_PROCESSORS 4
 
-  for(i = 1; i < n; i++)
+void generate_adjacency_matrix(int matrix[][1000],int matrix_size) {
+  int i,j;
+  for(i = 0; i < matrix_size; i++)
+    for(j = 0; j < matrix_size; j++)
+      matrix[i][j] = 0;
+
+  for(i = 1; i < matrix_size; i++)
     for(j = 0; j < i; j++) {
-      a[i][j] = rand() % 10;
-      a[j][i] = 99;
+      matrix[i][j] = rand() % 10;
+      matrix[j][i] = 99;
     }
 }
 
@@ -20,7 +22,7 @@ int min(int a,int b) {
   return a < b ? a : b;
 }
 
-void new_floyds(int matrix[][1000], int matrix_size, int step)  {
+void improved_floyd(int matrix[][1000], int matrix_size, int step)  {
   int i, j;
   #pragma omp parallel default(none) shared(matrix, matrix_size, step) private(i, j)
   {
@@ -33,63 +35,52 @@ void new_floyds(int matrix[][1000], int matrix_size, int step)  {
     if (thread_id == num_of_threads - 1)
       end = matrix_size - 1;
     
-    for (i = start; i <= end; i++) {
-      for (j = 0; j < matrix_size; j++) {
+    for (i = start; i <= end; i++)
+      for (j = 0; j < matrix_size; j++)
         matrix[i][j] = min(matrix[i][j], matrix[i][step] + matrix[step][j]);
-      }
-    }
   }
 }
 
-void new_floyds_caller(int matrix[][1000], int matrix_size) {
-  int k;
-  for (k = 0; k < matrix_size; k++)
-    new_floyds(matrix, matrix_size, k);
+void compute_shortest_path(int matrix[][1000], int matrix_size) {
+  int step;
+  for (step = 0; step < matrix_size; step++)
+    improved_floyd(matrix, matrix_size, step);
 }
 
-void floyds(int a[][1000],int n) {
-  int i,j,k;
-  for(k = 0;k < n ; k++) {
-    #pragma omp parallel default(none) shared(a, n, k) private(i, j)
-    {
-      for(i = 0;i < n; i++) {
-        for(j = 0;j < n ; j++) {
-          a[i][j] = min(a[i][j], a[i][k] + a[k][j]);
-        }
-      }
-    }
-  }
-}
-
-void execute_floyd_algorithm_and_time_it(int a[][1000], int n) {
+void execute_floyd_algorithm_and_time_it(int matrix[][1000], int matrix_size) {
   clock_t begin, end;
   double cpu_time = 0;
 
   begin = clock();
-  new_floyds_caller(a,n);
+  compute_shortest_path(matrix,matrix_size);
   end = clock();
   cpu_time = (double)(end - begin) / CLOCKS_PER_SEC;
+  cpu_time = cpu_time / NUM_OF_PROCESSORS;
 
   FILE *fp = fopen("./perf_result.dot","a");
-  fprintf(fp, "%f\n", cpu_time);
+  fprintf(fp, "%d --> %f\n", matrix_size, cpu_time);
   fclose(fp);
 }
 
-int main(int argc, char* argv[]) {
-  int a[1000][1000],n,i,j;
+void print_matrix_to_file(int matrix[][1000], int matrix_size) {
+  int i, j;
   FILE *fp = fopen("./floyds.dot","w");
-
-  n = atoi(argv[1]);
-  adjacency_matrix(a,n);
-  execute_floyd_algorithm_and_time_it(a, n);
-
-  for(i = 0;i < n; i++) {
-    for(j = 0;j < n; j++)
-      fprintf(fp, "%d ", a[i][j]);
+  for(i = 0;i < matrix_size; i++) {
+    for(j = 0;j < matrix_size; j++)
+      fprintf(fp, "%d ", matrix[i][j]);
     fprintf(fp, "\n");
   }
 
   fclose(fp);
+}
+
+int main(int argc, char* argv[]) {
+  int matrix[1000][1000], matrix_size;
+
+  matrix_size = atoi(argv[1]);
+  generate_adjacency_matrix(matrix, matrix_size);
+  execute_floyd_algorithm_and_time_it(matrix, matrix_size);
+  print_matrix_to_file(matrix, matrix_size);
 
   return 0;
 }
