@@ -34,7 +34,7 @@ void improved_floyd(int matrix[][1000], int matrix_size, int step)  {
 
     if (thread_id == num_of_threads - 1)
       end = matrix_size - 1;
-    
+
     for (i = start; i <= end; i++)
       for (j = 0; j < matrix_size; j++)
         matrix[i][j] = min(matrix[i][j], matrix[i][step] + matrix[step][j]);
