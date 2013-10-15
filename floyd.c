@@ -57,7 +57,7 @@ void execute_floyd_algorithm_and_time_it(int matrix[][1000], int matrix_size) {
   cpu_time = (double)(end - begin) / CLOCKS_PER_SEC;
   cpu_time = cpu_time / NUM_OF_PROCESSORS;
 
-  FILE *fp = fopen("./perf_result.dot","a");
+  FILE *fp = fopen("./perf_result","a");
   fprintf(fp, "%d --> %f\n", matrix_size, cpu_time);
   fclose(fp);
 }

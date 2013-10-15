@@ -1,4 +1,4 @@
-*.sh
+make.sh
 floyd
 *.swp
 *.rb
