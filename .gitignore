@@ -2,3 +2,5 @@
 floyd
 *.swp
 *.rb
+floyds.dot
+*.txt
