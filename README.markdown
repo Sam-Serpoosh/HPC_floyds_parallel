@@ -67,6 +67,20 @@ Wall-Clock For Parallel Version
 900  --> 3344.596
 1000 --> 4524.646
 
+
+Matrix Size 1000 and 100 times execution in the Parallel Version:
+  Min time: 1258.582
+  Max time: 7089.379
+  Avg time: 4775.320840000001
+
+
+Matrix Size 1000 and 100 times execution in the Sequential Version:
+  Min time: 7691.772
+  Max time: 9593.056
+  Avg time: 7992.262260000001
+
 ```
 
 *As you can see in some cases we have up to **7-8** times **speedup**!*
+**Check out the Min Time in both Sequential and Parallel Version 
+for matrix size 1000x1000 and 100 times execution**
