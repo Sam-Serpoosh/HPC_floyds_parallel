@@ -82,5 +82,6 @@ Matrix Size 1000 and 100 times execution in the Sequential Version:
 ```
 
 *As you can see in some cases we have up to **7-8** times **speedup**!*
+
 **Check out the Min Time in both Sequential and Parallel Version 
 for matrix size 1000x1000 and 100 times execution**
